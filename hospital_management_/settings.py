@@ -17,14 +17,14 @@ DEBUG = True
 # Add WebSocket protocol to the ALLOWED_HOSTS
 ALLOWED_HOSTS = ['*']
 
-# Configure routing
-ASGI_APPLICATION = 'chat_project.routing.application'
+# # Configure routing
+# ASGI_APPLICATION = 'chat_project.routing.application'
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,6 +36,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'chat',
+  
+    
+    
+    
 
 ]
 

@@ -23,12 +23,16 @@
 
 import os
 from django.core.asgi import get_asgi_application
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_management_.settings')
 
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
-from chat.routing import websocket_urlpatterns  # Move this import here
+# Ensure that Django is properly set up before importing the routing module
+django.setup()
+
+from chat.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter(
     {
@@ -37,6 +41,6 @@ application = ProtocolTypeRouter(
             URLRouter(
                 websocket_urlpatterns
             )
-        ),
+        )
     }
 )
