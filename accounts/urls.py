@@ -8,7 +8,7 @@ from django.contrib import admin
 from .Views import AdminView,DoctorView, IcuView, PatientViews,PaymentView,ChatView
 urlpatterns = [
     #-----------------------Patient side----------------------------------------#
-    path('settings', admin.site.urls),
+    # path('settings', admin.site.urls),
     path('register',PatientViews.register_view,name='register_view' ),
     path('verification',PatientViews.verify_otp_view,name='verification' ),
     path('login',PatientViews.login_view,name='login_view'),
