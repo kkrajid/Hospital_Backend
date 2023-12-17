@@ -201,20 +201,18 @@ class AdminDoctorDetailView(APIView):
     def get(self, request, doctor_id):
         try:
             doctor = DoctorProfile.objects.get(pk=doctor_id)
+            serializer = AdminDoctorDetailViewSerializer(doctor)
+            return Response(serializer.data)
         except DoctorProfile.DoesNotExist:
-            return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = AdminDoctorDetailViewSerializer(doctor)
-        return Response(serializer.data)
+            return Response({"error": f"Doctor with ID {doctor_id} not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, doctor_id):
         try:
             doctor = DoctorProfile.objects.get(pk=doctor_id)
+            serializer = AdminDoctorDetailViewSerializer(doctor, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response({"error": "Validation failed", "details": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except DoctorProfile.DoesNotExist:
-            return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
-        print(request.data,"fsdfsfsf")
-        serializer = AdminDoctorDetailViewSerializer(doctor, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Doctor with ID {doctor_id} not found"}, status=status.HTTP_404_NOT_FOUND)

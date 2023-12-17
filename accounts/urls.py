@@ -18,6 +18,7 @@ urlpatterns = [
     path('patient/appointments/<int:appointment_id>/', PatientViews.appointment_details, name='appointment-details'),
     path('patient/prescriptions/appointment/<int:appointment_id>/', PatientViews.prescriptions_for_appointment, name='prescriptions-for-appointment'),
     path('patient/cancel_appointment/<int:appointment_id>/', PatientViews.cancel_appointment, name='cancel_appointment'),
+    path('patient/refund-amount/', PatientViews.user_refund_amount_view, name='user_refund_amount'),
    
  
 

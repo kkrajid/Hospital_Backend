@@ -12,6 +12,8 @@ from django.core.mail import send_mail
 from django.core.cache import cache
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from django.db.models import Sum
 #----------------------------------###registration###-------------------------------------------------#
 #-----------------------------------------------------------------------------------------------------#
 def generate_otp(length=6):
@@ -445,10 +447,22 @@ def cancel_appointment(request, appointment_id):
         return Response({'error': 'Appointment is already cancelled'}, status=status.HTTP_400_BAD_REQUEST)
     appointment.is_cancelled = True
     appointment.appointment_status = 'Cancelled'
+    appointment.refunded_amount = appointment.amount_paid
+    appointment.amount_paid = 0
     appointment.save()
     serializer = AppointmentSerializer(appointment)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def user_refund_amount_view(request):
+    user_id = request.META.get('user')
+    try:
+        user_refunded_amount = Appointment.objects.filter(patient=user_id).aggregate(refunded_amount=Sum('refunded_amount'))['refunded_amount'] or 0
+        serializer = UserRefundSerializer({'user_refunded_amount': user_refunded_amount})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 # @api_view(['GET'])
 # def doctor_time_slot_in_patientside(request, pk, date):
 #     if date is None:

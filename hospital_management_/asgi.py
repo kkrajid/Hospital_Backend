@@ -29,7 +29,6 @@ import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hospital_management_.settings')
 
-# Ensure that Django is properly set up before importing the routing module
 django.setup()
 
 from chat.routing import websocket_urlpatterns

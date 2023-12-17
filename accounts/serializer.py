@@ -248,3 +248,5 @@ class AdminDoctorDetailViewSerializer(AdminDoctorDetailViewSerializer):
         if user_instance:
             return user_instance.is_blocked
         return None
+class UserRefundSerializer(serializers.Serializer):
+    user_refunded_amount = serializers.DecimalField(max_digits=10, decimal_places=2)

@@ -518,14 +518,31 @@ def doctor_get_appointment_details(request, appointment_id):
     return Response(serializer.data)
 
 
+# @api_view(['PATCH'])
+# def doctor_manage_appointment_status(request, appointment_id):
+#     appointment = get_object_or_404(Appointment, id=appointment_id)
+#     print(request.data,"*********************************")
+#     serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
+#     if serializer.is_valid():
+#         serializer.save()
+#         print(serializer.data,"-----------------------------------")
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#     else:
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['PATCH'])
 def doctor_manage_appointment_status(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    print(request.data,"*********************************")
+    new_status = request.data.get('appointment_status', None)
+    if new_status == 'Cancelled' and not appointment.is_cancelled:
+        appointment.appointment_status = 'Cancelled'
+        appointment.refunded_amount = appointment.amount_paid
+        appointment.amount_paid = 0
     serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        print(serializer.data,"-----------------------------------")
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
