@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.CustomMiddleware',
+    'channels.middleware.WebSocketMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
 
