@@ -6,6 +6,7 @@ from datetime import datetime
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password
 
 
 
@@ -83,6 +84,8 @@ class DoctorProfile(UserProfile):
     updated_at = models.DateTimeField(auto_now=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=True, null=True)
     service_charge = models.PositiveIntegerField()
+
+    
 class PatientProfile(UserProfile):
     insurance_info = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=100, blank=True, null=True)
@@ -223,3 +226,20 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.receiver}: {self.content}"
+    
+
+
+class Notification(models.Model):
+    node = models.CharField(max_length=255)
+    heart_rate = models.IntegerField()
+    user_id = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
+    doctor_id = models.CharField(max_length=255,null=True)
+
+    def mark_as_read(self):
+        self.read = True
+        self.save()
+
+    def __str__(self):
+        return f"{self.node} - Heart Rate: {self.heart_rate} - User ID: {self.user_id} - Read: {self.read}"

@@ -175,8 +175,29 @@ def doctor_dashboard(request):
     serializer = DoctorProfileSerializer(doctor_profile)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def doctor_dashboard_all(request):
+    if 'user' not in request.META:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    doctor_id = request.META.get('user')
+    appointments = Appointment.objects.filter(doctor_id=doctor_id)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+    # Calculate total patients, ICU patients, and total appointments
+    total_patients = appointments.filter(appointment_status='Accepted').count()
+    icu_patients = appointments.filter(icu_selected=True).count()
+    total_appointments = appointments.count()
+
+    # Serialize the data
+    data = {
+        'total_patients': total_patients,
+        'icu_patients': icu_patients,
+        'total_appointments': total_appointments,
+    }
+
+    # Return the response with a status code
+    return Response(data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'PATCH', 'DELETE'])
 def doctor_profile_detail(request):
     if 'user' not in request.META:
         return Response({"message": "Bad Request"}, status=status.HTTP_404_NOT_FOUND)
@@ -192,7 +213,7 @@ def doctor_profile_detail(request):
         serializer = DoctorProfileSerializer(doctor_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    if request.method == 'PUT':
+    if request.method == 'PATCH':
         data_s = request.data
         s = data_s['user'].pop('email')
         print(s)
@@ -546,3 +567,54 @@ def doctor_manage_appointment_status(request, appointment_id):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+from ..task import read_and_notify_task
+from rest_framework.views import APIView
+
+class NotificationView(APIView):
+    def get(self, request, *args, **kwargs):
+        user_id = request.META['user']
+        print(user_id)
+        read_and_notify_task.delay()
+        notifications = Notification.objects.filter(doctor_id=user_id,read=False)
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def mark_as_read(self, request, notification_id):
+        try:
+            notification = Notification.objects.get(pk=notification_id)
+            notification.mark_as_read()
+            return Response({'detail': 'Notification marked as read.'}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({'detail': 'Notification not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def get_notification_patient(request):
+    try:
+        doctor_id = request.META['user']
+        doctor = User.objects.get(id=doctor_id)
+    except User.DoesNotExist:
+        return Response({'status': "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Get user_ids from query parameters
+    user_ids = request.GET.getlist('user_ids', [])
+
+    if not user_ids:
+        return Response({'status': "User IDs not provided"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if not user_ids or all(uid == '' for uid in user_ids):
+        return Response({'status': "User IDs not provided or invalid"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user_ids = [int(uid) for uid in user_ids]
+    users = Appointment.objects.filter(id__in=user_ids)
+    user_serializer = AppointmentSerializer(users, many=True)
+    return Response(user_serializer.data, status=status.HTTP_200_OK)

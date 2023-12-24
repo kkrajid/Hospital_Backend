@@ -36,10 +36,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'chat',
-  
-    
-    
-    
+    'django_celery_results',
+    'django_celery_beat',
 
 ]
 
@@ -70,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accounts.middleware.CustomMiddleware',
-    'channels.middleware.WebSocketMiddleware',
+    # 'channels.middleware.WebSocketMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
 
@@ -202,3 +200,21 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'accounts.User'
 
 STRIPE_SECRET_KEY = 'sk_test_51O7aFpSFII5KNwJppj5EjbwNFL8nNXNSQOgqirySi4zJQSBwCh2EzjtpKP9jWJ1kcLe21hCFgVEovzSrr5ftxTI300j8WOiw4R'
+
+
+# #celery settings
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_BEAT_SCHEDULE = {
+    'read_and_notify_task': {
+        'task': 'accounts.task.read_and_notify_task',
+        'schedule': 10.0, 
+    },
+}

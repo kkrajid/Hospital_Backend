@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from ..serializer import *
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
+from rest_framework import generics
 # from datetime import datetime, timedelta
 
 
@@ -74,7 +75,7 @@ def create_doctor_profile(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 def doctor_profile_detail(request, pk):
     try:
         doctor_profile = DoctorProfile.objects.get(pk=pk)
@@ -85,7 +86,7 @@ def doctor_profile_detail(request, pk):
         serializer = DoctorProfileSerializer(doctor_profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    if request.method == 'PUT':
+    if request.method == 'PATCH':
         serializer = DoctorProfileSerializer(doctor_profile, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -216,3 +217,21 @@ class AdminDoctorDetailView(APIView):
             return Response({"error": "Validation failed", "details": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except DoctorProfile.DoesNotExist:
             return Response({"error": f"Doctor with ID {doctor_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST', 'GET'])
+def admin_create_doctor(request):
+    if request.method == 'POST':
+        serializer = DoctorProfileSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Doctor created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'GET':
+        all_doctors = DoctorProfile.objects.all()
+        serializer = DoctorProfileSerializers(all_doctors, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+

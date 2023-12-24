@@ -34,6 +34,8 @@ urlpatterns = [
     path('admin/all_doctors',AdminView.get_all_doctor_profiles,name='get_all_doctor_profiles'),
     path('admin/all_patients',AdminView.all_patients,name='all_patients'),
     path('admin/doctor/create', AdminView.create_doctor_profile, name='create-doctor-profile'),
+ 
+    path('admin/create-doctor/', AdminView.admin_create_doctor, name='admin-create-doctor'),
     path('admin/block-users/', AdminView.block_users, name='block_users'),
     path('admin/unblock-users/', AdminView.unblock_users, name='unblock_users'),
     path('admin/admin_dashboard_data/', AdminView.admin_dashboard_data, name='admin_dashboard_data'),
@@ -46,6 +48,7 @@ urlpatterns = [
 
 
     #---------------------------Doctor side--------------------------------------#
+    path('notifications/', DoctorView.NotificationView.as_view(), name='notification-list'),
     path('doctor/login',DoctorView.doctor_login_view,name='doctor_login'),
     path('doctor/create_time_slots',DoctorView.create_time_slots,name='create_time_slots'),
     path('doctor/all_time_slots',DoctorView.all_time_slots,name='all_time_slots'),
@@ -55,12 +58,14 @@ urlpatterns = [
     path('doctor_profile_detail', DoctorView.doctor_profile_detail, name='doctor_profile_detail'),
     path('doctor/get_all_appointment_of_doctor', DoctorView.get_all_appointment_of_doctor, name='get_all_appointment_of_doctor'),
     path('doctor/dashboard',DoctorView.doctor_dashboard,name='doctor_dashboard'),
+    path('doctor/dashboard_all',DoctorView.doctor_dashboard_all,name='doctor_dashboard_all '),
     path('doctor/create_prescription/', DoctorView.create_prescription, name='create_prescription'),
     path('doctor/get-prescriptions/<int:appointment_id>/', DoctorView.get_prescriptions, name='get-prescriptions'),
     path('doctor/appointments/<int:appointment_id>/', DoctorView.doctor_get_appointment_details, name='doctor_get_appointment_details'),
     path('doctor/all_icu_patients/', DoctorView.all_icu_patients, name='all_icu_patients'),
     path('doctor/add_icu_patient/', DoctorView.add_icu_patient, name='add_icu_patient'),
     path('doctor/appointments/<int:appointment_id>/update-status/', DoctorView.doctor_manage_appointment_status, name='update_appointment_status'),
+    path('doctor/get_notification_patient/', DoctorView.get_notification_patient, name='get_notification_patient'),
 
     
     # path('create-payment-intent/', PaymentView.CreatePaymentIntentView.as_view(), name='create_payment_intent'),

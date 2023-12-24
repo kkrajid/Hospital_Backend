@@ -250,3 +250,50 @@ class AdminDoctorDetailViewSerializer(AdminDoctorDetailViewSerializer):
         return None
 class UserRefundSerializer(serializers.Serializer):
     user_refunded_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+class DoctorProfileSerializers(serializers.ModelSerializer):
+    user = UserSerializer()  # Include UserSerializer for writing only
+    address = AddressSerializer()
+
+    class Meta:
+        model = DoctorProfile
+        fields = ('id','user', 'bio', 'profile_pic', 'specialization', 'license_number', 'service_charge', 'address')
+
+    def create(self, validated_data):
+        # Extract user data and create User object
+        user_data = validated_data.pop('user', {})
+        user_data['password'] = make_password(user_data.get('password'))
+        user = User.objects.create(**user_data)
+
+        # Extract address data and create Address object
+        address_data = validated_data.pop('address', {})
+        address = Address.objects.create(**address_data)
+
+        # Create DoctorProfile object
+        doctor_profile = DoctorProfile.objects.create(user=user, address=address, **validated_data)
+
+        return doctor_profile
+    
+
+
+
+    
+class DoctorDashboardSerializer(serializers.Serializer):
+    total_patients = serializers.SerializerMethodField()
+    icu_patients = serializers.SerializerMethodField()
+    total_appointments = serializers.SerializerMethodField()
+
+    def get_total_patients(self, obj):
+        return obj.filter(is_confirmed=True, is_cancelled=False).count()
+
+    def get_icu_patients(self, obj):
+        return obj.filter(icu_selected=True).count()
+
+    def get_total_appointments(self, obj):
+        return obj.count()
