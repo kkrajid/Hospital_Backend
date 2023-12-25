@@ -228,6 +228,8 @@ def doctor_profile_detail(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
 # @api_view(['GET'])
 # def get_patient_profiles(request):
 #     patient_profiles = PatientProfile.objects.all()

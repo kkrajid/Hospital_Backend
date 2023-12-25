@@ -56,6 +56,8 @@ urlpatterns = [
 
     path('doctor-profiles/', DoctorView.get_doctor_profiles, name='doctor-profile-list'),
     path('doctor_profile_detail', DoctorView.doctor_profile_detail, name='doctor_profile_detail'),
+    # path('update_doctor_profile', DoctorView.update_doctor_profile, name='update_doctor_profile'),
+    
     path('doctor/get_all_appointment_of_doctor', DoctorView.get_all_appointment_of_doctor, name='get_all_appointment_of_doctor'),
     path('doctor/dashboard',DoctorView.doctor_dashboard,name='doctor_dashboard'),
     path('doctor/dashboard_all',DoctorView.doctor_dashboard_all,name='doctor_dashboard_all '),

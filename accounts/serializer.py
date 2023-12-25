@@ -100,6 +100,33 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class AdminCreateDoctorProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    address = AddressSerializer()
+
+    class Meta:
+        model = DoctorProfile
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        address_data = validated_data.pop('address')
+
+        # Create user instance
+        user = User.objects.create(**user_data)
+        user.set_password(user_data['password'])
+        user.save()
+
+        # Create address instance
+        address = Address.objects.create(**address_data)
+
+        # Create doctor profile instance
+        doctor_profile = DoctorProfile.objects.create(user=user, address=address, **validated_data)
+
+        return doctor_profile
+
+
 class PatientProfileSerializer(serializers.ModelSerializer):
     address = AddressSerializer(required=False)
 
