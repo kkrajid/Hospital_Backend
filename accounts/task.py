@@ -41,7 +41,7 @@ def read_and_notify_task(self):
                         requests.post('http://127.0.0.1:8000/api/notifications/', data=notification_data)
 
                     elif heart_rate <= 80 and node in previous_notifications:
-                        print(f"Heart rate for Node {node} is below 100. Removing from notifications.")
+                        print(f"Heart rate for Node {node} is below 80. Removing from notifications.")
                         previous_notifications.remove(node)
 
             time.sleep(10)

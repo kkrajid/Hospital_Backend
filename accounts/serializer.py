@@ -324,3 +324,14 @@ class DoctorDashboardSerializer(serializers.Serializer):
 
     def get_total_appointments(self, obj):
         return obj.count()
+    
+
+class AppointmentSerializer2(serializers.ModelSerializer):
+    time_slot = TimeSlotSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
+    doctor = UserSerializer(read_only=True)
+    Patient_profile = PatientProfileSerializer(source='patient.patientprofile', read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'

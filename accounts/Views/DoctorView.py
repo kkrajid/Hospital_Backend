@@ -618,5 +618,5 @@ def get_notification_patient(request):
     
     user_ids = [int(uid) for uid in user_ids]
     users = Appointment.objects.filter(id__in=user_ids)
-    user_serializer = AppointmentSerializer(users, many=True)
+    user_serializer = AppointmentSerializer2(users, many=True)
     return Response(user_serializer.data, status=status.HTTP_200_OK)
